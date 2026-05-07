@@ -1,0 +1,155 @@
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.6;
+  font-weight: 400;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  color-scheme: dark;
+
+  --bg: #0b0c10;
+  --bg-soft: #111318;
+  --text: rgba(255, 255, 255, 0.88);
+  --muted: rgba(255, 255, 255, 0.6);
+
+  --accent: #7c5cff;
+  --accent-glow: rgba(124, 92, 255, 0.35);
+
+  --card: rgba(255, 255, 255, 0.04);
+  --border: rgba(255, 255, 255, 0.08);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  overflow-x: hidden;
+  background: radial-gradient(
+      circle at top,
+      rgba(124, 92, 255, 0.08),
+      transparent 40%
+    ),
+    radial-gradient(
+      circle at bottom,
+      rgba(0, 255, 200, 0.04),
+      transparent 50%
+    ),
+    var(--bg);
+  color: var(--text);
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+a {
+  color: var(--muted);
+  text-decoration: none;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+a:hover {
+  color: white;
+  text-shadow: 0 0 12px var(--accent-glow);
+}
+
+a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -3px;
+  width: 0%;
+  height: 1px;
+  background: linear-gradient(90deg, var(--accent), transparent);
+  transition: width 0.3s ease;
+}
+
+a:hover::after {
+  width: 100%;
+}
+
+h1 {
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+button {
+  border-radius: 10px;
+  border: 1px solid var(--border);
+
+  padding: 0.65em 1.2em;
+  font-size: 1rem;
+  font-weight: 500;
+
+  font-family: inherit;
+  color: var(--text);
+
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(10px);
+
+  cursor: pointer;
+
+  transition: all 0.25s ease;
+}
+
+button:hover {
+  border-color: var(--accent);
+  box-shadow: 0 0 20px var(--accent-glow);
+  transform: translateY(-1px);
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+::selection {
+  background: var(--accent-glow);
+  color: white;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #f5f6fa;
+    --text: #1c1f26;
+    --muted: rgba(0, 0, 0, 0.6);
+    --card: rgba(0, 0, 0, 0.04);
+    --border: rgba(0, 0, 0, 0.1);
+  }
+
+  html, body {
+    background: var(--bg);
+    color: var(--text);
+  }
+
+  button {
+    background: white;
+  }
+}
