@@ -722,6 +722,7 @@ body {
 ───────────────────────────────────────────── */
 
 @media (max-width: 768px) {
+
     .hero-mosaic {
         grid-template-columns: repeat(3, 1fr);
     }
@@ -744,28 +745,62 @@ body {
         display: none;
     }
 
-    /* 2-column grid on tablets/mobile */
+    /* FIXED GRID */
     .movies-grid,
     .loading-grid {
-        grid-template-columns: repeat(2, 1fr);
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 0.75rem;
+        width: 100%;
+    }
+
+    /* Prevent broken columns */
+    .movies-grid > *,
+    .loading-grid > * {
+        min-width: 0;
+    }
+
+    /* Make cards fit grid properly */
+    .movie-card {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .movie-poster {
+        width: 100%;
+        aspect-ratio: 2 / 3;
+        object-fit: cover;
+        display: block;
     }
 }
 
 @media (max-width: 600px) {
+
     .section-header--row {
         align-items: flex-start;
     }
 
     .filter-panel {
-        padding: 1.25rem;
+        padding: 0;
     }
 
     .year-input {
         width: 90px;
     }
+
+    .popular-section,
+    .results-section {
+        padding: 1rem 0.4rem;
+    }
+
+    .movies-grid,
+    .loading-grid {
+        gap: 0.65rem;
+    }
 }
 
 @media (max-width: 480px) {
+
     .hero-mosaic {
         grid-template-columns: repeat(2, 1fr);
     }
@@ -773,7 +808,14 @@ body {
     .top10-section,
     .popular-section,
     .results-section {
-        padding: 3rem 1rem;
+        padding: 3rem 0.75rem;
+    }
+
+    /* 2 columns on very small phones */
+    .movies-grid,
+    .loading-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.65rem;
     }
 }
 
@@ -968,5 +1010,5 @@ color: rgb(0, 0, 0);
     .top10-arrow { width: 34px; height: 34px; }
     .top10-arrow svg { width: 15px; height: 15px; }
     .top10-item { flex: 0 0 130px; }
-    .top10-section { padding: 3rem 1rem; }
+    .top10-section { padding: 1rem 0rem; }
 }
