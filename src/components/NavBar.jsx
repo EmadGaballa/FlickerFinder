@@ -1,11 +1,22 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { searchMovies } from "../services/api";
 import "../css/NavBar.css";
+
+const DEBOUNCE_MS = 400;
 
 function NavBar() {
     const [scrolled, setScrolled] = useState(false);
     const [menuOpen, setMenuOpen] = useState(false);
+    const [searchQuery, setSearchQuery] = useState("");
+    const [searchResults, setSearchResults] = useState([]);
+    const [searchLoading, setSearchLoading] = useState(false);
+    const [isSearching, setIsSearching] = useState(false);
+    const [showSearchDropdown, setShowSearchDropdown] = useState(false);
     const location = useLocation();
+    const navigate = useNavigate();
+
+    const isMovieDetailPage = location.pathname.startsWith("/movie/");
 
     useEffect(() => {
         const onScroll = () => setScrolled(window.scrollY > 40);
@@ -14,6 +25,46 @@ function NavBar() {
     }, []);
 
     useEffect(() => setMenuOpen(false), [location]);
+
+    // Search functionality
+    useEffect(() => {
+        if (!searchQuery.trim()) {
+            setIsSearching(false);
+            setSearchResults([]);
+            setShowSearchDropdown(false);
+            return;
+        }
+
+        setIsSearching(true);
+        setSearchLoading(true);
+        setShowSearchDropdown(true);
+
+        const timer = setTimeout(async () => {
+            try {
+                const results = await searchMovies(searchQuery);
+                setSearchResults(results.slice(0, 5)); // Show top 5 results
+            } catch (err) {
+                console.error(err);
+                setSearchResults([]);
+            } finally {
+                setSearchLoading(false);
+            }
+        }, DEBOUNCE_MS);
+
+        return () => clearTimeout(timer);
+    }, [searchQuery]);
+
+    const handleClearSearch = () => {
+        setSearchQuery("");
+        setIsSearching(false);
+        setSearchResults([]);
+        setShowSearchDropdown(false);
+    };
+
+    const handleSearchResultClick = (movieId) => {
+        navigate(`/movie/${movieId}`);
+        handleClearSearch();
+    };
 
     const isActive = (path) => location.pathname === path;
 
@@ -38,6 +89,83 @@ function NavBar() {
                     Flick<em>Finder</em>
                 </span>
             </Link>
+
+            {/* SEARCH BAR - Only visible on MovieDetail page */}
+            {isMovieDetailPage && (
+                <div className="navbar-search-wrapper">
+                    <form onSubmit={(e) => e.preventDefault()} className="navbar-search-form">
+                        <div className="navbar-search-inner">
+                            <svg
+                                className="navbar-search-icon"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                            >
+                                <circle cx="11" cy="11" r="8" />
+                                <path d="m21 21-4.35-4.35" />
+                            </svg>
+
+                            <input
+                                type="text"
+                                placeholder="Find another movie..."
+                                className="navbar-search-input"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                autoComplete="off"
+                            />
+
+                            {searchLoading && <div className="navbar-search-spinner" />}
+
+                            {searchQuery && !searchLoading && (
+                                <button
+                                    type="button"
+                                    className="navbar-search-clear"
+                                    onClick={handleClearSearch}
+                                >
+                                    ✕
+                                </button>
+                            )}
+                        </div>
+
+                        {/* Search Dropdown Results */}
+                        {showSearchDropdown && searchResults.length > 0 && (
+                            <div className="navbar-search-dropdown">
+                                {searchResults.map((movie) => (
+                                    <div
+                                        key={movie.id}
+                                        className="navbar-search-result"
+                                        onClick={() => handleSearchResultClick(movie.id)}
+                                    >
+                                        <div className="navbar-result-poster">
+                                            {movie.poster_path ? (
+                                                <img
+                                                    src={`https://image.tmdb.org/t/p/w92${movie.poster_path}`}
+                                                    alt={movie.title}
+                                                />
+                                            ) : (
+                                                <div className="navbar-result-placeholder">🎬</div>
+                                            )}
+                                        </div>
+                                        <div className="navbar-result-info">
+                                            <h4 className="navbar-result-title">{movie.title}</h4>
+                                            <p className="navbar-result-year">
+                                                {movie.release_date?.slice(0, 4)}
+                                            </p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+
+                        {showSearchDropdown && searchQuery && searchResults.length === 0 && !searchLoading && (
+                            <div className="navbar-search-empty">
+                                No movies found
+                            </div>
+                        )}
+                    </form>
+                </div>
+            )}
 
             <div className="navbar-links">
                 <Link

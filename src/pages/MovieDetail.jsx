@@ -35,7 +35,6 @@ function MovieDetail() {
                 setError(null);
 
                 const data = await getMovieDetails(id);
-
                 setMovie(data);
             } catch (err) {
                 console.log(err);
@@ -85,12 +84,17 @@ function MovieDetail() {
     if (loading) {
         return (
             <div className="detail-page">
-                <div className="detail-loading">
-                    <div className="loading-glow"></div>
-
-                    <h1>Loading cinematic universe...</h1>
-
-                    <p>Syncing movie database ✨</p>
+                <div className="detail-skeleton">
+                    <div className="skeleton-backdrop" />
+                    <div className="skeleton-body">
+                        <div className="skeleton-poster" />
+                        <div className="skeleton-info">
+                            <div className="skeleton-line wide" />
+                            <div className="skeleton-line medium" />
+                            <div className="skeleton-line" />
+                            <div className="skeleton-line" />
+                        </div>
+                    </div>
                 </div>
             </div>
         );
@@ -99,13 +103,11 @@ function MovieDetail() {
     if (error) {
         return (
             <div className="detail-page detail-error">
-                <div className="error-box">
+                <div>
                     <h2>⚠ System Error</h2>
-
                     <p>{error}</p>
-
                     <button
-                        className="detail-back-btn"
+                        className="back-link"
                         onClick={() => navigate(-1)}
                     >
                         ← Return
@@ -119,7 +121,7 @@ function MovieDetail() {
 
     return (
         <div className="detail-page">
-
+            {/* Background Backdrop */}
             <div className="detail-backdrop">
                 {movie.backdrop_path && (
                     <img
@@ -128,11 +130,10 @@ function MovieDetail() {
                         className="backdrop-img"
                     />
                 )}
-
-                <div className="backdrop-overlay"></div>
-                <div className="backdrop-fade"></div>
+                <div className="backdrop-gradient" />
             </div>
 
+            {/* Back Button */}
             <button
                 className="detail-back"
                 onClick={() => navigate(-1)}
@@ -140,8 +141,9 @@ function MovieDetail() {
                 ← Back
             </button>
 
+            {/* Main Content */}
             <div className="detail-content">
-
+                {/* Poster */}
                 <div className="detail-poster">
                     {movie.poster_path ? (
                         <img
@@ -155,49 +157,94 @@ function MovieDetail() {
                     )}
                 </div>
 
+                {/* Info Panel */}
                 <div className="detail-info">
-
+                    {/* Genres and Actions */}
                     {movie.genres?.length > 0 && (
-                        <div className="detail-genres">
-                            {movie.genres.map((genre) => (
-                                <span
-                                    key={genre.id}
-                                    className="genre-pill"
+                        <div className="detail-genres-actions">
+                            <div className="detail-genres">
+                                {movie.genres.map((genre) => (
+                                    <span
+                                        key={genre.id}
+                                        className="genre-pill"
+                                    >
+                                        {genre.name}
+                                    </span>
+                                ))}
+                            </div>
+
+                            <div className="detail-actions">
+                                <button
+                                    className={`action-btn action-btn--favorite${
+                                        favorite ? " active" : ""
+                                    }`}
+                                    onClick={toggleFavorite}
                                 >
-                                    {genre.name}
-                                </span>
-                            ))}
+                                    <svg
+                                        viewBox="0 0 24 24"
+                                        fill={
+                                            favorite
+                                                ? "currentColor"
+                                                : "none"
+                                        }
+                                        stroke="currentColor"
+                                        strokeWidth="2"
+                                    >
+                                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                                    </svg>
+                                    {favorite
+                                        ? "Favorited"
+                                        : "Add to Favorites"}
+                                </button>
+
+                                {movie.trailer && (
+                                    <button
+                                        className="action-btn action-btn--trailer"
+                                        onClick={() =>
+                                            setTrailerOpen(true)
+                                        }
+                                    >
+                                        <svg
+                                            viewBox="0 0 24 24"
+                                            fill="currentColor"
+                                        >
+                                            <path d="M8 5v14l11-7z" />
+                                        </svg>
+                                        Watch Trailer
+                                    </button>
+                                )}
+                            </div>
                         </div>
                     )}
 
+                    {/* Title */}
                     <h1 className="detail-title">
                         {movie.title}
                     </h1>
 
+                    {/* Tagline */}
                     {movie.tagline && (
                         <p className="detail-tagline">
-                            “{movie.tagline}”
+                            "{movie.tagline}"
                         </p>
                     )}
 
+                    {/* Meta Information */}
                     <div className="detail-meta">
-
                         {movie.vote_average > 0 && (
                             <span
                                 className="meta-rating"
                                 style={{ color: ratingColor }}
                             >
-                                ⭐ {movie.vote_average.toFixed(1)}
-
+                                ★ {movie.vote_average.toFixed(1)}
                                 <span className="meta-votes">
-                                    ({movie.vote_count?.toLocaleString()} votes)
+                                    ({movie.vote_count?.toLocaleString()})
                                 </span>
                             </span>
                         )}
 
                         {movie.release_date && (
                             <span className="meta-item">
-                                📅{" "}
                                 {new Date(
                                     movie.release_date
                                 ).getFullYear()}
@@ -206,57 +253,34 @@ function MovieDetail() {
 
                         {formatRuntime(movie.runtime) && (
                             <span className="meta-item">
-                                🕐 {formatRuntime(movie.runtime)}
+                                {formatRuntime(movie.runtime)}
                             </span>
                         )}
 
                         {movie.original_language && (
-                            <span className="meta-item">
-                                🌍{" "}
+                            <span className="meta-lang">
                                 {movie.original_language.toUpperCase()}
                             </span>
                         )}
                     </div>
 
+                    {/* Synopsis */}
                     {movie.overview && (
                         <div className="detail-overview">
-                            <h2>Synopsis</h2>
-
+                            <h2 className="detail-section-label">
+                                Synopsis
+                            </h2>
                             <p>{movie.overview}</p>
                         </div>
                     )}
 
-                    <div className="detail-actions">
-
-                        <button
-                            className={`action-btn favorite-btn ${
-                                favorite ? "active" : ""
-                            }`}
-                            onClick={toggleFavorite}
-                        >
-                            {favorite
-                                ? "💜 Favorited"
-                                : "🤍 Add to Favorites"}
-                        </button>
-
-                        {movie.trailer && (
-                            <button
-                                className="action-btn trailer-btn"
-                                onClick={() => setTrailerOpen(true)}
-                            >
-                                ▶ Watch Trailer
-                            </button>
-                        )}
-                    </div>
-
+                    {/* Facts Grid */}
                     <div className="detail-facts">
-
                         {movie.status && (
                             <div className="fact">
                                 <span className="fact-label">
                                     Status
                                 </span>
-
                                 <span className="fact-value">
                                     {movie.status}
                                 </span>
@@ -268,7 +292,6 @@ function MovieDetail() {
                                 <span className="fact-label">
                                     Budget
                                 </span>
-
                                 <span className="fact-value">
                                     {formatMoney(movie.budget)}
                                 </span>
@@ -280,7 +303,6 @@ function MovieDetail() {
                                 <span className="fact-label">
                                     Revenue
                                 </span>
-
                                 <span className="fact-value">
                                     {formatMoney(movie.revenue)}
                                 </span>
@@ -292,9 +314,12 @@ function MovieDetail() {
                                 <span className="fact-label">
                                     Studio
                                 </span>
-
                                 <span className="fact-value">
-                                    {movie.production_companies[0].name}
+                                    {
+                                        movie
+                                            .production_companies[0]
+                                            .name
+                                    }
                                 </span>
                             </div>
                         )}
@@ -302,12 +327,10 @@ function MovieDetail() {
                 </div>
             </div>
 
+            {/* Cast Section */}
             {movie.cast?.length > 0 && (
                 <div className="detail-cast-section">
-
-                    <h2 className="detail-section-title">
-                        Cast
-                    </h2>
+                    <h2 className="detail-section-label">Cast</h2>
 
                     <div className="cast-row">
                         {movie.cast.slice(0, 12).map((person) => (
@@ -316,7 +339,6 @@ function MovieDetail() {
                                 className="cast-card"
                             >
                                 <div className="cast-photo">
-
                                     {person.profile_path ? (
                                         <img
                                             src={`${TMDB_IMG}w185${person.profile_path}`}
@@ -343,6 +365,7 @@ function MovieDetail() {
                 </div>
             )}
 
+            {/* Trailer Modal */}
             {trailerOpen && movie.trailer && (
                 <div
                     className="trailer-modal"

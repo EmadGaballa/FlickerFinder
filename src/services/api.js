@@ -32,3 +32,35 @@ export const getMovieDetails = async (id) => {
         ) ?? null,
     };
 };
+
+export const getGenres = async () => {
+    const response = await fetch(
+        `${BASE_URL}/genre/movie/list?api_key=${API_KEY}`
+    );
+    const data = await response.json();
+    return data.genres; // [{ id, name }, ...]
+};
+
+// Main discover function — used for filtered + infinite scroll browsing
+// filters: { genreId, sortBy, minRating, yearFrom, yearTo }
+export const discoverMovies = async (page = 1, filters = {}) => {
+    const params = new URLSearchParams({
+        api_key: API_KEY,
+        page,
+        sort_by: filters.sortBy || "popularity.desc",
+        include_adult: false,
+        include_video: false,
+    });
+
+    if (filters.genreId)   params.set("with_genres",           filters.genreId);
+    if (filters.minRating) params.set("vote_average.gte",      filters.minRating);
+    if (filters.yearFrom)  params.set("primary_release_date.gte", `${filters.yearFrom}-01-01`);
+    if (filters.yearTo)    params.set("primary_release_date.lte", `${filters.yearTo}-12-31`);
+
+    const response = await fetch(`${BASE_URL}/discover/movie?${params}`);
+    const data = await response.json();
+    return {
+        results: data.results ?? [],
+        totalPages: data.total_pages ?? 1,
+    };
+};
