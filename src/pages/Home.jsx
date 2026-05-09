@@ -1,6 +1,7 @@
 import MovieCard from "../components/MovieCard";
 import "../css/Home.css";
 import { Link } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { useState, useEffect, useRef, useCallback } from "react";
 import {
     searchMovies,
@@ -23,6 +24,22 @@ const SORT_OPTIONS = [
 const CURRENT_YEAR = new Date().getFullYear();
 
 function Home() {
+    const searchRef = useRef(null);
+    const location = useLocation();
+    useEffect(() => {
+        if (location.state?.focusSearch) {
+            searchRef.current?.scrollIntoView({
+                behavior: "smooth",
+                block: "center",
+            });
+
+            // optional cinematic touch: auto-focus input
+            const input = searchRef.current?.querySelector("input");
+            input?.focus();
+        }
+    }, [location]);
+
+
     // ── Search ────────────────────────────────────────────────────
     const [searchQuery, setSearchQuery] = useState("");
     const [searchResults, setSearchResults] = useState([]);
@@ -33,7 +50,6 @@ function Home() {
     const [heroPosterUrls, setHeroPosterUrls] = useState([]);
     const [topTen, setTopTen] = useState([]);
     const [initLoading, setInitLoading] = useState(true);
-    const [carouselScroll, setCarouselScroll] = useState(0);
 
     // ── Genres ────────────────────────────────────────────────────
     const [genres, setGenres] = useState([]);
@@ -56,7 +72,6 @@ function Home() {
     const [error, setError] = useState(null);
 
     const loaderRef = useRef(null);
-    const carouselRef = useRef(null);
     const filtersRef = useRef({
         sortBy: "popularity.desc",
         genreId: null,
@@ -234,17 +249,6 @@ function Home() {
         setSearchResults([]);
     };
 
-    // ── Carousel scroll handlers ───────────────────────────────────
-    const scrollCarousel = (direction) => {
-        if (carouselRef.current) {
-            const scrollAmount = 320; // 160px card + 1rem gap
-            carouselRef.current.scrollBy({
-                left: direction === "left" ? -scrollAmount : scrollAmount,
-                behavior: "smooth",
-            });
-        }
-    };
-
     // ─────────────────────────────────────────────────────────────
     return (
         <div className="home">
@@ -288,14 +292,16 @@ function Home() {
                                 <path d="m21 21-4.35-4.35" />
                             </svg>
 
-                            <input
-                                type="text"
-                                placeholder="Discover movies and TV shows..."
-                                className="search-input"
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                autoComplete="off"
-                            />
+                            <div ref={searchRef} className="search-container">
+                                <input
+                                    type="text"
+                                    placeholder="Discover movies and TV shows..."
+                                    className="search-input"
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    autoComplete="off"
+                                />
+                            </div>
 
                             {searchLoading && <div className="search-spinner" />}
 
@@ -354,72 +360,54 @@ function Home() {
                         <h2 className="top10-title">Top 10 Right Now</h2>
                     </div>
 
-                    <div className="top10-slider-wrapper">
-                        <button
-                            className="top10-arrow top10-arrow-left"
-                            onClick={() => scrollCarousel("left")}
-                            aria-label="Previous"
-                        >
-                            ‹
-                        </button>
+                    <div className="top10-carousel">
+                        {topTen.map((movie, idx) => (
+                            <Link
+                                to={`/movie/${movie.id}`}
+                                key={movie.id}
+                                className="top10-item"
+                            >
+                                <div className="top10-card-wrapper">
+                                    <div className="top10-rank">{idx + 1}</div>
 
-                        <div className="top10-carousel" ref={carouselRef}>
-                            {topTen.map((movie, idx) => (
-                                <Link
-                                    to={`/movie/${movie.id}`}
-                                    key={movie.id}
-                                    className="top10-item"
-                                >
-                                    <div className="top10-card-wrapper">
-                                        <div className="top10-rank">{idx + 1}</div>
-
-                                        <div className="top10-poster-wrapper">
-                                            {movie.poster_path ? (
-                                                <img
-                                                    src={`${TMDB_IMG}w342${movie.poster_path}`}
-                                                    alt={movie.title}
-                                                    loading="lazy"
-                                                    className="top10-poster-img"
-                                                />
-                                            ) : (
-                                                <div className="top10-poster-placeholder">
-                                                    🎬
-                                                </div>
-                                            )}
-                                        </div>
-
-                                        <div className="top10-hover-info">
-                                            <h3 className="top10-card-title">
-                                                {movie.title}
-                                            </h3>
-                                            <div className="top10-card-meta">
-                                                <span
-                                                    className="top10-card-rating"
-                                                    style={{
-                                                        color: getRatingColor(
-                                                            movie.vote_average
-                                                        ),
-                                                    }}
-                                                >
-                                                    ★ {movie.vote_average?.toFixed(1)}
-                                                </span>
-                                                <span className="top10-card-year">
-                                                    {movie.release_date?.slice(0, 4)}
-                                                </span>
+                                    <div className="top10-poster-wrapper">
+                                        {movie.poster_path ? (
+                                            <img
+                                                src={`${TMDB_IMG}w342${movie.poster_path}`}
+                                                alt={movie.title}
+                                                loading="lazy"
+                                                className="top10-poster-img"
+                                            />
+                                        ) : (
+                                            <div className="top10-poster-placeholder">
+                                                🎬
                                             </div>
+                                        )}
+                                    </div>
+
+                                    <div className="top10-hover-info">
+                                        <h3 className="top10-card-title">
+                                            {movie.title}
+                                        </h3>
+                                        <div className="top10-card-meta">
+                                            <span
+                                                className="top10-card-rating"
+                                                style={{
+                                                    color: getRatingColor(
+                                                        movie.vote_average
+                                                    ),
+                                                }}
+                                            >
+                                                ★ {movie.vote_average?.toFixed(1)}
+                                            </span>
+                                            <span className="top10-card-year">
+                                                {movie.release_date?.slice(0, 4)}
+                                            </span>
                                         </div>
                                     </div>
-                                </Link>
-                            ))}
-                        </div>
-
-                        <button
-                            className="top10-arrow top10-arrow-right"
-                            onClick={() => scrollCarousel("right")}
-                            aria-label="Next"
-                        >
-                            ›
-                        </button>
+                                </div>
+                            </Link>
+                        ))}
                     </div>
                 </section>
             )}
@@ -448,9 +436,8 @@ function Home() {
                             )}
 
                             <button
-                                className={`filter-toggle-btn${
-                                    filtersOpen ? " active" : ""
-                                }`}
+                                className={`filter-toggle-btn${filtersOpen ? " active" : ""
+                                    }`}
                                 onClick={() => setFiltersOpen((o) => !o)}
                             >
                                 Filters
@@ -471,9 +458,8 @@ function Home() {
                                     {SORT_OPTIONS.map((opt) => (
                                         <button
                                             key={opt.value}
-                                            className={`filter-pill${
-                                                sortBy === opt.value ? " active" : ""
-                                            }`}
+                                            className={`filter-pill${sortBy === opt.value ? " active" : ""
+                                                }`}
                                             onClick={() => setSortBy(opt.value)}
                                         >
                                             {opt.label}
@@ -487,9 +473,8 @@ function Home() {
                                 <label className="filter-label">Genre</label>
                                 <div className="filter-pills">
                                     <button
-                                        className={`filter-pill${
-                                            activeGenre === null ? " active" : ""
-                                        }`}
+                                        className={`filter-pill${activeGenre === null ? " active" : ""
+                                            }`}
                                         onClick={() => setActiveGenre(null)}
                                     >
                                         All
@@ -497,9 +482,8 @@ function Home() {
                                     {genres.map((g) => (
                                         <button
                                             key={g.id}
-                                            className={`filter-pill${
-                                                activeGenre === g.id ? " active" : ""
-                                            }`}
+                                            className={`filter-pill${activeGenre === g.id ? " active" : ""
+                                                }`}
                                             onClick={() => setActiveGenre(g.id)}
                                         >
                                             {g.name}
@@ -515,9 +499,8 @@ function Home() {
                                     {[0, 5, 6, 6.5, 7, 7.5, 8, 8.5, 9].map((v) => (
                                         <button
                                             key={v}
-                                            className={`filter-pill rating-pill${
-                                                minRating === v ? " active" : ""
-                                            }`}
+                                            className={`filter-pill rating-pill${minRating === v ? " active" : ""
+                                                }`}
                                             onClick={() => setMinRating(v)}
                                         >
                                             {v === 0 ? "Any" : `${v}+`}

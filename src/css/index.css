@@ -84,34 +84,6 @@ h1 {
   letter-spacing: -0.02em;
 }
 
-button {
-  border-radius: 10px;
-  border: 1px solid var(--border);
-
-  padding: 0.65em 1.2em;
-  font-size: 1rem;
-  font-weight: 500;
-
-  font-family: inherit;
-  color: var(--text);
-
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(10px);
-
-  cursor: pointer;
-
-  transition: all 0.25s ease;
-}
-
-button:hover {
-  border-color: var(--accent);
-  box-shadow: 0 0 20px var(--accent-glow);
-  transform: translateY(-1px);
-}
-
-button:active {
-  transform: scale(0.98);
-}
 
 ::selection {
   background: var(--accent-glow);
