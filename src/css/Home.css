@@ -717,34 +717,64 @@ body {
     font-size: 0.75rem;
     font-weight: 600;
 }
-
 /* ─────────────────────────────────────────────
    RESPONSIVE
 ───────────────────────────────────────────── */
+
 @media (max-width: 768px) {
-    .hero-mosaic { grid-template-columns: repeat(3, 1fr); }
+    .hero-mosaic {
+        grid-template-columns: repeat(3, 1fr);
+    }
 
-    .top10-card  { gap: 0.75rem; padding: 1rem; }
-    .rank-number { font-size: 3.5rem; min-width: 2.5rem; }
-    .top10-poster { width: 56px; }
-    .top10-overview { display: none; }
+    .top10-card {
+        gap: 0.75rem;
+        padding: 1rem;
+    }
 
+    .rank-number {
+        font-size: 3.5rem;
+        min-width: 2.5rem;
+    }
+
+    .top10-poster {
+        width: 56px;
+    }
+
+    .top10-overview {
+        display: none;
+    }
+
+    /* 2-column grid on tablets/mobile */
     .movies-grid,
-    .loading-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+    .loading-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
 
 @media (max-width: 600px) {
-    .section-header--row { align-items: flex-start; }
-    .filter-panel-inner  { padding: 1.25rem; }
-    .year-input          { width: 90px; }
+    .section-header--row {
+        align-items: flex-start;
+    }
+
+    .filter-panel {
+        padding: 1.25rem;
+    }
+
+    .year-input {
+        width: 90px;
+    }
 }
 
 @media (max-width: 480px) {
-    .hero-mosaic { grid-template-columns: repeat(2, 1fr); }
+    .hero-mosaic {
+        grid-template-columns: repeat(2, 1fr);
+    }
 
     .top10-section,
     .popular-section,
-    .results-section { padding: 3rem 1rem; }
+    .results-section {
+        padding: 3rem 1rem;
+    }
 }
 
 /* ─────────────────────────────────────────────
